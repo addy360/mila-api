@@ -12,7 +12,6 @@ from utils.index import MillardAyo, get_base_server_addr
 def index(request: Request):
     ma = MillardAyo()
     next_url = request.query_params.get('next')
-    print(next_url)
     if not next_url:
         ma.run()
     else:

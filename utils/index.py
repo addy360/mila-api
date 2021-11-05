@@ -1,3 +1,4 @@
+from bs4.element import ResultSet
 import requests
 from bs4 import BeautifulSoup
 
@@ -41,17 +42,31 @@ class MillardAyo(Page):
         self.cached_posts = {}
         self.next_page_url = None
 
+    def remove_base_url(self, url):
+        return url.replace(self.BASE_URL, '')
+
+    def remove_uni_chars(self, text):
+        text = text.replace('\n', '')
+        return text.replace('\r', '')
+
     def parse_post_details(self, post_detail_html):
         soup = self.get_soup(post_detail_html)
         try:
+            post_feature_image = soup.select_one(
+                'div#featured-image img')['src']
+
             post_header = soup.select_one('div#post-header>h1').text
             post_content = soup.select_one('div.post-section')
+            post_images = []
+            for image in post_content.select('img'):
+                post_images.append(image['src'])
+
             post_detail = post_content.text.strip()
             post_detail = post_detail.split("Related")
             post_detail.pop()
             post_detail = "".join(post_detail)
-            data = {"post_header": post_header,
-                    "post_detail": post_detail}
+            data = {"post_feature_image": post_feature_image, "post_header": self.remove_uni_chars(post_header),
+                    "post_detail": self.remove_uni_chars(post_detail), "post_images": post_images}
 
         except:
             data = None
@@ -79,12 +94,14 @@ class MillardAyo(Page):
 
         self.parse_result()
 
-    def print_posts(self, posts):
+    def print_posts(self, posts: ResultSet):
         for i, post in enumerate(posts):
+            category = post.select_one('div.blog-layout1-text>h3').text
+            thumbnail = post.img['src']
             title = post.h2.a.text
             link: str = post.h2.a['href']
-            self.posts.append({'post_title': title,
-                               'post_link': link.replace(self.BASE_URL, '')})
+            self.posts.append({'category': category, 'post_title': title,
+                               'post_link': self.remove_base_url(link), "thumbnail": thumbnail})
         return self.posts
 
     def parse_result(self):
