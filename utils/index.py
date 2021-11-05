@@ -2,6 +2,16 @@ import requests
 from bs4 import BeautifulSoup
 
 
+def get_base_server_addr(request):
+    protocal = None
+    if request.is_secure():
+        protocal = "https"
+    else:
+        protocal = "http"
+
+    return f"{protocal}://{request.get_host()}"
+
+
 class Page:
     def __init__(self, url):
         self.URL = url
@@ -36,12 +46,17 @@ class MillardAyo(Page):
         post_header = soup.select_one('div#post-header>h1').text
         post_content = soup.select_one('div.post-section')
         post_detail = post_content.text.strip()
-        return {"post_header": post_header, "post_content": post_content, "post_detail": post_detail}
+        post_detail = post_detail.split("Related")
+        post_detail.pop()
+        post_detail = "".join(post_detail)
+        data = {"post_header": post_header,
+                "post_detail": post_detail}
+        return data
 
     def get_post_details(self, post_url):
-        self.URL = post_url
+        self.URL = self.BASE_URL + "/" + post_url
         post_html = self.get_res()
-        self.parse_post_details(post_html)
+        return self.parse_post_details(post_html)
 
     def user_choice(self, next_page_url=None):
         choice = 2
@@ -72,8 +87,11 @@ class MillardAyo(Page):
         html_result = self.get_res()
         soup = self.get_soup(html_result)
         list_posts = soup.find_all('li', class_="infinite-post")
-        next_page_url = soup.select(
-            'div.pagination>a:not(.inactive)')[-2]['href']
+        try:
+            next_page_url = soup.select(
+                'div.pagination>a:not(.inactive)')[-2]['href']
+        except:
+            next_page_url = "/"
 
         self.print_posts(list_posts)
         self.next_page_url = next_page_url.replace(self.BASE_URL, '')
