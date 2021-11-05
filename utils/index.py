@@ -26,6 +26,7 @@ class Page:
 class MillardAyo(Page):
     def __init__(self):
         super().__init__('https://millardayo.com/')
+        self.BASE_URL = 'https://millardayo.com'
         self.posts = []
         self.cached_posts = {}
         self.next_page_url = None
@@ -50,19 +51,21 @@ class MillardAyo(Page):
         except Exception:
             return False
 
-    def parse_next_page(self, next_page_url):
+    def parse_next_page(self, next_page_url: str):
 
         # TODO caching for easier backward navigation
         # self.cached_posts[self.URL] = self.posts
         self.posts = []
-        self.URL = next_page_url
+        self.URL = self.BASE_URL + next_page_url
 
         self.parse_result()
 
     def print_posts(self, posts):
         for i, post in enumerate(posts):
-            self.posts.append({'post_title': post.h2.a.text,
-                               'post_link': post.h2.a['href']})
+            title = post.h2.a.text
+            link: str = post.h2.a['href']
+            self.posts.append({'post_title': title,
+                               'post_link': link.replace(self.BASE_URL, '')})
         return self.posts
 
     def parse_result(self):
@@ -73,7 +76,7 @@ class MillardAyo(Page):
             'div.pagination>a:not(.inactive)')[-2]['href']
 
         self.print_posts(list_posts)
-        self.next_page_url = next_page_url
+        self.next_page_url = next_page_url.replace(self.BASE_URL, '')
         # self.user_choice(next_page_url)
 
     def get_res(self):
