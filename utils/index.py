@@ -43,14 +43,18 @@ class MillardAyo(Page):
 
     def parse_post_details(self, post_detail_html):
         soup = self.get_soup(post_detail_html)
-        post_header = soup.select_one('div#post-header>h1').text
-        post_content = soup.select_one('div.post-section')
-        post_detail = post_content.text.strip()
-        post_detail = post_detail.split("Related")
-        post_detail.pop()
-        post_detail = "".join(post_detail)
-        data = {"post_header": post_header,
-                "post_detail": post_detail}
+        try:
+            post_header = soup.select_one('div#post-header>h1').text
+            post_content = soup.select_one('div.post-section')
+            post_detail = post_content.text.strip()
+            post_detail = post_detail.split("Related")
+            post_detail.pop()
+            post_detail = "".join(post_detail)
+            data = {"post_header": post_header,
+                    "post_detail": post_detail}
+
+        except:
+            data = None
         return data
 
     def get_post_details(self, post_url):
@@ -95,7 +99,6 @@ class MillardAyo(Page):
 
         self.print_posts(list_posts)
         self.next_page_url = next_page_url.replace(self.BASE_URL, '')
-        # self.user_choice(next_page_url)
 
     def get_res(self):
         res = self.get_page()

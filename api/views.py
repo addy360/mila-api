@@ -8,12 +8,11 @@ from django.urls import reverse
 from utils.index import MillardAyo, get_base_server_addr
 
 
-ma = MillardAyo()
-
-
 @api_view()
 def index(request: Request):
+    ma = MillardAyo()
     next_url = request.query_params.get('next')
+    print(next_url)
     if not next_url:
         ma.run()
     else:
@@ -30,6 +29,7 @@ def index(request: Request):
 
 @api_view()
 def show(request, url):
+    ma = MillardAyo()
     res = ma.get_post_details(url)
     data = {
         "data": {
