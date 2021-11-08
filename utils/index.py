@@ -4,12 +4,7 @@ from bs4 import BeautifulSoup
 
 
 def get_base_server_addr(request):
-    protocal = None
-    if request.is_secure():
-        protocal = "https"
-    else:
-        protocal = "http"
-
+    protocal = "https" if request.is_secure() else "http"
     return f"{protocal}://{request.get_host()}"
 
 
@@ -58,15 +53,17 @@ class MillardAyo(Page):
             post_header = soup.select_one('div#post-header>h1').text
             post_content = soup.select_one('div.post-section')
             post_images = []
+            videos = []
             for image in post_content.select('img'):
                 post_images.append(image['src'])
-
+            for video in post_content.select('iframe'):
+                videos.append(video['src'])
             post_detail = post_content.text.strip()
             post_detail = post_detail.split("Related")
             post_detail.pop()
             post_detail = "".join(post_detail)
             data = {"post_feature_image": post_feature_image, "post_header": self.remove_uni_chars(post_header),
-                    "post_detail": self.remove_uni_chars(post_detail), "post_images": post_images}
+                    "post_detail": self.remove_uni_chars(post_detail), "post_images": post_images, 'videos': videos}
 
         except:
             data = None
