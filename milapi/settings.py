@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-4j*&19%_c1bp*$a%!hz$js6itn2^pz_66h1*k12!13j=vpv5tc
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     # installed
     'rest_framework',
     'corsheaders',
-    
+
     'api'
 ]
 
@@ -131,6 +131,8 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS=[
-    "http://localhost:3000"
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://192.168.42.4:3000",
+    "https://mila-client.vercel.app"
 ]
