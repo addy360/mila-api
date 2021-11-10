@@ -1,11 +1,13 @@
-from django.shortcuts import render
 
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
 from django.urls import reverse
+from api.serializer import ContactSerializer
+from datetime import datetime
 
-from utils.index import MillardAyo, get_base_server_addr
+
+from utils.index import MillardAyo, get_base_server_addr, send_email_to_admin
 
 
 @api_view()
@@ -36,3 +38,30 @@ def show(request, url):
         }
     }
     return Response(data=data)
+
+
+@api_view(http_method_names=['POST'])
+def contact(request):
+    contactS = ContactSerializer(data=request.POST)
+    if not contactS.is_valid():
+        data = {
+            "data": {
+                "errors": contactS.errors,
+            }
+        }
+        return Response(data, 422)
+
+    message = contactS.data['message']
+    email = contactS.data['email']
+    fullname = contactS.data['fullname']
+
+    send_email_to_admin(f"Email from MilaApi Contact {datetime.now()}",
+                        message=f"{fullname} - {email} \n\n {message}", from_email=email)
+
+    data = {
+        "data": {
+            "message": "Thank you!",
+        }
+    }
+
+    return Response(data)

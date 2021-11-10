@@ -1,3 +1,5 @@
+from django.core.mail import send_mail
+from django.conf import settings
 from bs4.element import ResultSet
 import requests
 from bs4 import BeautifulSoup
@@ -120,3 +122,10 @@ class MillardAyo(Page):
 
     def run(self):
         self.parse_result()
+
+
+def send_email_to_admin(subject, message, from_email):
+    to_email = settings.DEFAULT_TO_EMAIL
+    print(to_email)
+    send_mail(subject=subject, message=message,
+              recipient_list=[to_email], from_email=from_email)
